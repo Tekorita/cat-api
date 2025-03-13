@@ -27,7 +27,7 @@ SECRET_KEY = "django-insecure-m*rsy$(c^5dnb6j6c!50ftuguzy8dk-67vmq9%y#b1^jn*!2do
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "localhost:3000", "host.docker.internal"]
 
 
 # Application definition
@@ -39,9 +39,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -131,3 +133,12 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Cargar la API Key
 CAT_API_KEY = env('CAT_API_KEY', default=None)
+
+CORS_ALLOW_ALL_ORIGINS = True  # Permitir peticiones desde cualquier origen
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",
+#     "http://127.0.0.1:3000",
+# ]
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = ["GET", "POST", "OPTIONS"]  # Métodos permitidos
+CORS_ALLOW_HEADERS = ["*"]  # Permitir todos los headers

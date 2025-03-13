@@ -16,9 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .views import get_cats
+from .views import post_cats
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('api/cats/', get_cats, name='get_cats'),
+    path("post_cats/", post_cats, name="post_cats"),
 ]
