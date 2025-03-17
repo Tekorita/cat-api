@@ -1,26 +1,13 @@
-/* src/styles/Home.css */
-.home-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-color: #282c34;
-    color: white;
+.fade-in {
+    animation: fadeIn 1.5s ease-in-out;
   }
   
-  .play-button {
-    padding: 15px 30px;
-    font-size: 20px;
-    border: none;
-    border-radius: 10px;
-    background-color: #61dafb;
-    color: black;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .play-button:hover {
-    background-color: #21a1f1;
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
   }
   

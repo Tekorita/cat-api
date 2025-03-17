@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from .models import GameResult
 
 @csrf_exempt  # Solo usar en desarrollo
 @require_http_methods(["POST"])  # Solo acepta POST
@@ -53,3 +54,58 @@ def post_cats(request):
         return JsonResponse({"error": "Formato JSON inválido"}, status=400)
     except Exception as e:
         return JsonResponse({"error": f"Error inesperado: {str(e)}"}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_game_results(request):
+    try:
+        # Obtener todos los resultados ordenados por menos errores primero
+        results = GameResult.objects.all().order_by("mistakes", "time_taken")
+
+        # Convertir los datos a JSON
+        results_list = [
+            {
+                "player_name": result.player_name,
+                "mistakes": result.mistakes,
+                "time_taken": result.time_taken,
+            }
+            for result in results
+        ]
+
+        return JsonResponse({"results": results_list}, status=200)
+    
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@csrf_exempt
+def save_game_result(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body.decode("utf-8"))
+            player_name = data.get("player_name")
+            mistakes = data.get("mistakes")
+            time_taken = data.get("time_taken")
+
+            if not player_name or mistakes is None or time_taken is None:
+                return JsonResponse({"error": "Datos incompletos"}, status=400)
+
+            # ✅ Verificar si el usuario ya existe en la BD
+            game_result, created = GameResult.objects.update_or_create(
+                player_name=player_name,
+                defaults={
+                    "mistakes": mistakes,
+                    "time_taken": time_taken,
+                }
+            )
+
+            if created:
+                return JsonResponse({"message": "Nuevo resultado guardado correctamente", "id": game_result.id}, status=201)
+            else:
+                return JsonResponse({"message": "Resultado actualizado correctamente", "id": game_result.id}, status=200)
+        
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Formato JSON inválido"}, status=400)
+    
+    return JsonResponse({"error": "Método no permitido"}, status=405)

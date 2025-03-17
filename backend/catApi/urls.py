@@ -14,11 +14,15 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.http import HttpResponse
 from django.contrib import admin
 from django.urls import path
-from .views import post_cats
+from .views import post_cats, get_game_results, save_game_result
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("post_cats/", post_cats, name="post_cats"),
+    path("get_results/", get_game_results, name="get_results"),
+    path("save_result/", save_game_result, name="save_result"),
+    path("", lambda request: HttpResponse("¡La API está corriendo correctamente en AWS!")),
 ]

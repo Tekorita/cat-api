@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Exponer el puerto en el que correrá la app
-# EXPOSE 8000
+EXPOSE 8000
 
-# Comando para ejecutar el servidor Django
-# CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Comando para producción (Elastic Beanstalk)
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "catApi.wsgi:application"]

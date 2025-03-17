@@ -1,8 +1,10 @@
 import { BrowserRouter as Router, Routes, Route, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { Box, CircularProgress, Typography } from "@mui/material"; // ✅ Importamos CircularProgress y Box
 import Home from "./pages/Home";
 import Game from "./pages/Game";
 import Results from "./pages/Results";
+import LoadingScreen from "./pages/LoadingScreen";
 
 const GameWrapper = () => {
   const { playerName, difficulty } = useParams();
@@ -29,19 +31,76 @@ const GameWrapper = () => {
       });
   }, [difficulty, playerName]);
 
-  if (isLoading) return <p>Cargando gatos...</p>; // Evitar que intente renderizar sin datos
-  if (!difficulty || cats.length === 0) return <p>No se encontraron imágenes de gatos.</p>;
+  // ✅ Pantalla de carga con animación
+  if (isLoading) {
+    return (
+      <Box
+        sx={{
+          height: "100vh",
+          width: "100vw",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundImage: "url('/cat-wallpaper.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
+        <CircularProgress size={80} sx={{ color: "#4B0082", mb: 2 }} /> {/* ✅ Icono animado */}
+        <Typography variant="h5" sx={{ color: "black", fontWeight: "bold" }}>
+          Cargando gatos...
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (!difficulty || cats.length === 0) {
+    return (
+      <Box
+        sx={{
+          height: "100vh",
+          width: "100vw",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundImage: "url('/cat-wallpaper.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
+        <Typography variant="h5" sx={{ color: "white", fontWeight: "bold" }}>
+          No se encontraron imágenes de gatos.
+        </Typography>
+      </Box>
+    );
+  }
 
   return <Game difficulty={difficulty} cats={cats} />;
 };
 
 const App = () => {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 3000); // ⏳ Duración de la animación
+  }, []);
+
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/game/:playerName/:difficulty" element={<GameWrapper />} />
-        <Route path="/results/:playerName/:mistakes/:result" element={<Results />} />
+        {loading ? (
+          <Route path="/" element={<LoadingScreen />} />
+        ) : (
+          <>
+            <Route path="/" element={<Home />} />
+            <Route path="/game/:playerName/:difficulty" element={<GameWrapper />} />
+            <Route path="/results/:playerName/:mistakes/:time/:result" element={<Results />} />
+          </>
+        )}
       </Routes>
     </Router>
   );
