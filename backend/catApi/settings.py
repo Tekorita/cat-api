@@ -28,7 +28,8 @@ SECRET_KEY = "django-insecure-m*rsy$(c^5dnb6j6c!50ftuguzy8dk-67vmq9%y#b1^jn*!2do
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "").split(",")
+# ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "").split(",")
+ALLOWED_HOSTS = ["cat-api-env.eba-65wdpvns.us-east-1.elasticbeanstalk.com", "localhost"]
 
 
 # Application definition
