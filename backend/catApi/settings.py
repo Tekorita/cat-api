@@ -18,6 +18,9 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Inicializar django-environ
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -26,10 +29,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-m*rsy$(c^5dnb6j6c!50ftuguzy8dk-67vmq9%y#b1^jn*!2do"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = env.bool("DEBUG", default=True)
 
-# ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "").split(",")
-ALLOWED_HOSTS = ["cat-api-env.eba-65wdpvns.us-east-1.elasticbeanstalk.com", "localhost"]
+# ALLOWED_HOSTS dinámicos
+ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["localhost"])
+
+# ALLOWED_HOSTS = ["cat-api-env.eba-65wdpvns.us-east-1.elasticbeanstalk.com", "localhost"]
 
 
 # Application definition
@@ -80,11 +85,24 @@ WSGI_APPLICATION = "catApi.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    "default": dj_database_url.config(
-        default="postgres://postgres:postgres@db:5432/catapi_db"
-    )
-}
+# Configurar la base de datos según el entorno
+if DEBUG:  # Entorno de desarrollo (local)
+    DATABASES = {
+        "default": dj_database_url.config(
+            default="postgres://postgres:postgres@db:5432/catapi_db"
+        )
+    }
+else:  # Entorno de producción (AWS RDS)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": env("DB_NAME"),
+            "USER": env("DB_USER"),
+            "PASSWORD": env("DB_PASSWORD"),
+            "HOST": env("DB_HOST"),
+            "PORT": env("DB_PORT", default="5432"),
+        }
+    }
 
 
 # Password validation
@@ -127,11 +145,6 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-
-# Inicializar django-environ
-env = environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Cargar la API Key
 CAT_API_KEY = env('CAT_API_KEY', default=None)
