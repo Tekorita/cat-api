@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+// const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const API_BASE_URL = "http://cat-api-env-prod.eba-jbfd8qbt.us-east-1.elasticbeanstalk.com";
 
 export const fetchCats = async (playerName: string, difficulty: string) => {
   try {
