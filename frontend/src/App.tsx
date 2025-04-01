@@ -1,37 +1,39 @@
 import { BrowserRouter as Router, Routes, Route, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Box, CircularProgress, Typography } from "@mui/material"; // ✅ Importamos CircularProgress y Box
+import { Box, CircularProgress, Typography } from "@mui/material";
 import Home from "./pages/Home";
 import Game from "./pages/Game";
 import Results from "./pages/Results";
 import LoadingScreen from "./pages/LoadingScreen";
+import { fetchCats } from "./services/api";
 
 const GameWrapper = () => {
   const { playerName, difficulty } = useParams();
-  const [cats, setCats] = useState([]); // Inicializar como un array vacío
-  const [isLoading, setIsLoading] = useState(true); // Controlar la carga de datos
+  const [cats, setCats] = useState<any[]>([]); // Inicializar como un array vacío
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!difficulty) return;
 
-    setIsLoading(true);
-    fetch("http://localhost:8000/post_cats/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre: playerName, dificultad: difficulty }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setCats(data.gatos || []); // Asegurar que `cats` siempre sea un array
-        setIsLoading(false);
-      })
-      .catch((error) => {
+    // Función asíncrona interna para llamar a fetchCats
+    const getCats = async () => {
+      setIsLoading(true);
+      try {
+        // Llamamos a nuestra función que usa axios
+        const data = await fetchCats(playerName ?? "", difficulty);
+        // Suponiendo que 'data.gatos' contiene el array
+        setCats(data.gatos || []);
+      } catch (error) {
         console.error("Error al obtener gatos:", error);
+      } finally {
         setIsLoading(false);
-      });
+      }
+    };
+
+    getCats();
   }, [difficulty, playerName]);
 
-  // ✅ Pantalla de carga con animación
+  // Pantalla de carga
   if (isLoading) {
     return (
       <Box
@@ -48,7 +50,7 @@ const GameWrapper = () => {
           backgroundRepeat: "no-repeat",
         }}
       >
-        <CircularProgress size={80} sx={{ color: "#4B0082", mb: 2 }} /> {/* ✅ Icono animado */}
+        <CircularProgress size={80} sx={{ color: "#4B0082", mb: 2 }} />
         <Typography variant="h5" sx={{ color: "black", fontWeight: "bold" }}>
           Cargando gatos...
         </Typography>
@@ -56,6 +58,7 @@ const GameWrapper = () => {
     );
   }
 
+  // Si no hay dificultad o el array llegó vacío
   if (!difficulty || cats.length === 0) {
     return (
       <Box
@@ -79,6 +82,7 @@ const GameWrapper = () => {
     );
   }
 
+  // Si todo va bien, renderizamos el componente Game
   return <Game difficulty={difficulty} cats={cats} />;
 };
 
@@ -86,7 +90,9 @@ const App = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setTimeout(() => setLoading(false), 3000); // ⏳ Duración de la animación
+    // Simula 3 segundos de pantalla de carga
+    const timer = setTimeout(() => setLoading(false), 3000);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -98,7 +104,10 @@ const App = () => {
           <>
             <Route path="/" element={<Home />} />
             <Route path="/game/:playerName/:difficulty" element={<GameWrapper />} />
-            <Route path="/results/:playerName/:mistakes/:time/:result" element={<Results />} />
+            <Route
+              path="/results/:playerName/:mistakes/:time/:result"
+              element={<Results />}
+            />
           </>
         )}
       </Routes>
